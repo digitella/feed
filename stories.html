@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Stories 1080x1920: 8 заповедей грудного вскармливания</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: #111827;
+      color: #f9fafb;
+      font-family: "Nunito", "Segoe UI", Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 22px;
+      font-weight: 900;
+      text-align: center;
+    }
+
+    p {
+      margin: 0;
+      max-width: 820px;
+      text-align: center;
+      color: #d1d5db;
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      align-items: center;
+    }
+
+    button {
+      border: 0;
+      border-radius: 999px;
+      padding: 12px 18px;
+      font-size: 14px;
+      font-weight: 900;
+      background: #F2C94C;
+      color: #111827;
+      cursor: pointer;
+      box-shadow: 0 10px 24px rgba(242, 201, 76, 0.22);
+      font-family: inherit;
+    }
+
+    button.secondary {
+      background: #e5e7eb;
+      color: #111827;
+      box-shadow: none;
+    }
+
+    button:hover {
+      filter: brightness(1.04);
+    }
+
+    #indicator {
+      min-width: 120px;
+      text-align: center;
+      font-weight: 800;
+      color: #f9fafb;
+    }
+
+    #status {
+      min-height: 20px;
+      font-size: 14px;
+      color: #a7f3d0;
+      text-align: center;
+    }
+
+    canvas {
+      width: min(94vw, 420px);
+      height: auto;
+      border-radius: 18px;
+      background: #FDFBF7;
+      box-shadow: 0 18px 60px rgba(0, 0, 0, 0.45);
+    }
+  </style>
+</head>
+<body>
+  <h1>Stories-карусель 1080 × 1920</h1>
+  <p>
+    Открой этот файл в Chrome / Edge / Safari. Нажми «Скачать все PNG (ZIP)» — получишь 9 вертикальных сторис для Telegram и Instagram.
+  </p>
+
+  <div class="toolbar">
+    <button class="secondary" id="prev">←</button>
+    <div id="indicator">Слайд 1 / 9</div>
+    <button class="secondary" id="next">→</button>
+    <button id="downloadOne">Скачать текущий PNG</button>
+    <button id="downloadZip">Скачать все PNG (ZIP)</button>
+  </div>
+
+  <div id="status">Загрузка шрифтов...</div>
+  <canvas id="cv" width="1080" height="1920"></canvas>
+
+  <script>
+    const canvas = document.getElementById("cv");
+    const ctx = canvas.getContext("2d");
+    const statusEl = document.getElementById("status");
+    const indicatorEl = document.getElementById("indicator");
+
+    const W = canvas.width;
+    const H = canvas.height;
+    const FONT = '"Nunito", "Segoe UI", Roboto, Arial, sans-serif';
+
+    let currentSlide = 1;
+
+    const C = {
+      bg1: "#FDFBF7",
+      bg2: "#F5EFE6",
+      card: "#FFFFFF",
+      border: "#E8E1D5",
+      ru: "#2C3E50",
+      en: "#006D77",
+      gray: "#6B7280",
+      accent: "#F2C94C",
+      soft: "#FFF7ED"
+    };
+
+    const badgeColors = [
+      "#D4A017",
+      "#64748B",
+      "#B45309",
+      "#006D77",
+      "#2A9D8F",
+      "#E76F51",
+      "#7C3AED",
+      "#DC2626"
+    ];
+
+    const fileNames = [
+      "story-01-cover.png",
+      "story-02-zapoved-1.png",
+      "story-03-zapoved-2.png",
+      "story-04-zapoved-3.png",
+      "story-05-zapoved-4.png",
+      "story-06-zapoved-5.png",
+      "story-07-zapoved-6.png",
+      "story-08-zapoved-7.png",
+      "story-09-zapoved-8.png"
+    ];
+
+    const ru = (t) => ({ t, type: "ru" });
+    const en = (t) => ({ t, type: "en" });
+    const gr = (t) => ({ t, type: "gr" });
+
+    const commandments = [
+      {
+        title: "КОРМЛЕНИЕ ПО ТРЕБОВАНИЮ",
+        sub: "Прилагай к груди по первому требованию",
+        bullets: [
+          "Первые признаки: причмокивание, повороты головы, сосание кулачка.",
+          "Не жди плача — прикладывай раньше.",
+          "8–12 раз в сутки и чаще в первые месяцы.",
+          "Частая стимуляция = сигнал мозгу: молока нужно больше."
+        ],
+        sources: [
+          [ru("Союз педиатров России"), gr(" • "), en("AAP")],
+          [ru("ВОЗ"), gr(" / "), en("UNICEF")]
+        ]
+      },
+      {
+        title: "ПРАВИЛЬНЫЙ ЗАХВАТ",
+        sub: "Глубокий и безболезненный захват",
+        bullets: [
+          "Сосок плюс большая часть ареолы.",
+          "Губы вывернуты наружу — «губки рыбки».",
+          "Подбородок плотно прижат к груди.",
+          "Больно? Прерви сосание и приложи заново."
+        ],
+        sources: [
+          [ru("АКЕВ"), gr(" • "), en("ABM")]
+        ]
+      },
+      {
+        title: "НОЧНЫЕ КОРМЛЕНИЯ",
+        sub: "Ночь и раннее утро — пик пролактина",
+        bullets: [
+          "Пролактин отвечает за производство молока.",
+          "Ночные кормления поддерживают лактацию.",
+          "Пропуск ночи может снизить количество молока.",
+          "Организуй безопасное ночное кормление рядом с мамой."
+        ],
+        sources: [
+          [en("ESPGHAN"), gr(" • "), ru("Минздрав РФ")]
+        ]
+      },
+      {
+        title: "НЕТ СОСКАМ И БУТЫЛОЧКАМ",
+        sub: "Первые месяцы — только грудь",
+        bullets: [
+          "До 6 месяцев: грудное молоко, без воды.",
+          "Соски и бутылочки меняют паттерн сосания.",
+          "Путаница сосков → хуже опорожнение груди.",
+          "Итог: риск снижения выработки молока."
+        ],
+        sources: [
+          [en("CDC"), gr(" • "), ru("ВОЗ")],
+          [en("Chinese Nutrition Society")]
+        ]
+      },
+      {
+        title: "ПИТАНИЕ И ПИТЬЕ",
+        sub: "Разнообразное питание, питье по жажде",
+        bullets: [
+          "Овощи, белок, крупы, полезные жиры.",
+          "Строгие диеты истощают мать, не улучшают молоко.",
+          "Стакан воды рядом во время кормления.",
+          "Насильное питье литрами ≠ больше молока."
+        ],
+        sources: [
+          [en("National Health Commission of the PRC")],
+          [en("EFSA"), gr(" • "), ru("Союз педиатров России")]
+        ]
+      },
+      {
+        title: "ПОКОЙ И КОНТАКТ",
+        sub: "Покой и контакт кожа к коже",
+        bullets: [
+          "Стресс блокирует окситоцин — выброс молока.",
+          "Делегируй дела: отдых и кормление важнее.",
+          "Кожа к коже стабилизирует малыша.",
+          "Контакт усиливает гормональный отклик мамы."
+        ],
+        sources: [
+          [en("ABM"), gr(" • "), ru("ЮНИСЕФ")],
+          [en("Baby-Friendly Hospital Initiative")]
+        ]
+      },
+      {
+        title: "НЕ СЦЕЖИВАЙ БЕЗ НУЖДЫ",
+        sub: "Не сцеживай «до дна» без нужды",
+        bullets: [
+          "Полное сцеживание после кормления = ложный спрос.",
+          "Риск: гиперлактация, лактостаз, мастит.",
+          "Сцеживай до облегчения при распирании.",
+          "Или при временном разлучении с малышом."
+        ],
+        sources: [
+          [en("ABM Protocol #20"), gr(" • "), ru("АКЕВ")]
+        ]
+      },
+      {
+        title: "ОБРАЩАЙСЯ ЗА ПОМОЩЬЮ",
+        sub: "ГВ не должно быть подвигом через боль",
+        bullets: [
+          "Стойкая боль или трещины сосков.",
+          "Уплотнение, покраснение, температура.",
+          "Меньше 6–8 мокрых подгузников в сутки.",
+          "Обратись к консультанту или врачу срочно."
+        ],
+        sources: [
+          [en("ESPGHAN"), gr(" • "), ru("Минздрав РФ"), gr(" • "), en("AAP")]
+        ]
+      }
+    ];
+
+    function setFont(weight, size) {
+      ctx.font = `${weight} ${size}px ${FONT}`;
+    }
+
+    function roundRect(x, y, w, h, r) {
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.arcTo(x + w, y, x + w, y + h, r);
+      ctx.arcTo(x + w, y + h, x, y + h, r);
+      ctx.arcTo(x, y + h, x, y, r);
+      ctx.arcTo(x, y, x + w, y, r);
+      ctx.closePath();
+    }
+
+    function wrap(text, maxWidth) {
+      const words = text.split(" ");
+      const lines = [];
+      let line = "";
+
+      for (const word of words) {
+        const test = line ? `${line} ${word}` :
