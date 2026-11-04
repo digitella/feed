@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Карусель: 8 заповедей грудного вскармливания — 9 слайдов 1080x1350</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: #111827;
+      color: #f9fafb;
+      font-family: "Nunito", "Segoe UI", Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 22px;
+      font-weight: 900;
+      text-align: center;
+    }
+
+    p {
+      margin: 0;
+      max-width: 780px;
+      text-align: center;
+      color: #d1d5db;
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      align-items: center;
+    }
+
+    button {
+      border: 0;
+      border-radius: 999px;
+      padding: 12px 18px;
+      font-size: 14px;
+      font-weight: 900;
+      background: #F2C94C;
+      color: #111827;
+      cursor: pointer;
+      box-shadow: 0 10px 24px rgba(242, 201, 76, 0.22);
+      font-family: inherit;
+    }
+
+    button.secondary {
+      background: #e5e7eb;
+      color: #111827;
+      box-shadow: none;
+    }
+
+    button:hover {
+      filter: brightness(1.04);
+    }
+
+    #indicator {
+      min-width: 120px;
+      text-align: center;
+      font-weight: 800;
+      color: #f9fafb;
+    }
+
+    #status {
+      min-height: 20px;
+      font-size: 14px;
+      color: #a7f3d0;
+      text-align: center;
+    }
+
+    canvas {
+      width: min(94vw, 540px);
+      height: auto;
+      border-radius: 18px;
+      background: #FDFBF7;
+      box-shadow: 0 18px 60px rgba(0, 0, 0, 0.45);
+    }
+  </style>
+</head>
+<body>
+  <h1>Матери на заметку</h1>
+
+
+  <div class="toolbar">
+    <button class="secondary" id="prev">←</button>
+    <div id="indicator">Слайд 1 / 9</div>
+    <button class="secondary" id="next">→</button>
+  </div>
+
+  <div id="status"></div>
+  <canvas id="cv" width="1080" height="1350"></canvas>
+
+  <script>
+    const canvas = document.getElementById("cv");
+    const ctx = canvas.getContext("2d");
+    const statusEl = document.getElementById("status");
+    const indicatorEl = document.getElementById("indicator");
+
+    const W = canvas.width;
+    const H = canvas.height;
+    const FONT = '"Nunito", "Segoe UI", Roboto, Arial, sans-serif';
+
+    let currentSlide = 1;
+
+    const C = {
+      bg: "#FDFBF7",
+      card: "#FFFFFF",
+      border: "#E8E1D5",
+      ru: "#2C3E50",
+      en: "#006D77",
+      gray: "#6B7280",
+      accent: "#F2C94C",
+      soft: "#FFF7ED"
+    };
+
+    const badgeColors = [
+      "#D4A017",
+      "#64748B",
+      "#B45309",
+      "#006D77",
+      "#2A9D8F",
+      "#E76F51",
+      "#7C3AED",
+      "#DC2626"
+    ];
+
+    const fileNames = [
+      "slide-01-cover.png",
+      "slide-02-zapoved-1.png",
+      "slide-03-zapoved-2.png",
+      "slide-04-zapoved-3.png",
+      "slide-05-zapoved-4.png",
+      "slide-06-zapoved-5.png",
+      "slide-07-zapoved-6.png",
+      "slide-08-zapoved-7.png",
+      "slide-09-zapoved-8.png"
+    ];
+
+    const ru = (t) => ({ t, type: "ru" });
+    const en = (t) => ({ t, type: "en" });
+    const gr = (t) => ({ t, type: "gr" });
+
+    const commandments = [
+      {
+        title: "КОРМЛЕНИЕ ПО ТРЕБОВАНИЮ",
+        sub: "Прилагай к груди по первому требованию",
+        bullets: [
+          "Первые признаки: причмокивание, повороты головы, сосание кулачка.",
+          "Не жди плача — прикладывай раньше.",
+          "8–12 раз в сутки и чаще в первые месяцы.",
+          "Частая стимуляция = сигнал мозгу: молока нужно больше."
+        ],
+        sources: [
+          [ru("Союз педиатров России"), gr(" • "), en("AAP")],
+          [ru("ВОЗ"), gr(" / "), en("UNICEF")]
+        ]
+      },
+      {
+        title: "ПРАВИЛЬНЫЙ ЗАХВАТ",
+        sub: "Глубокий и безболезненный захват",
+        bullets: [
+          "Сосок плюс большая часть ареолы.",
+          "Губы вывернуты наружу — «губки рыбки».",
+          "Подбородок плотно прижат к груди.",
+          "Больно? Прерви сосание и приложи заново."
+        ],
+        sources: [
+          [ru("АКЕВ"), gr(" • "), en("ABM")]
+        ]
+      },
+      {
+        title: "НОЧНЫЕ КОРМЛЕНИЯ",
+        sub: "Ночь и раннее утро — пик пролактина",
+        bullets: [
+          "Пролактин отвечает за производство молока.",
+          "Ночные кормления поддерживают лактацию.",
+          "Пропуск ночи может снизить количество молока.",
+          "Организуй безопасное ночное кормление рядом с мамой."
+        ],
+        sources: [
+          [en("ESPGHAN"), gr(" • "), ru("Минздрав РФ")]
+        ]
+      },
+      {
+        title: "НЕТ СОСКАМ И БУТЫЛОЧКАМ",
+        sub: "Первые месяцы — только грудь",
+        bullets: [
+          "До 6 месяцев: грудное молоко, без воды.",
+          "Соски и бутылочки меняют паттерн сосания.",
+          "Путаница сосков → хуже опорожнение груди.",
+          "Итог: риск снижения выработки молока."
+        ],
+        sources: [
+          [en("CDC"), gr(" • "), ru("ВОЗ")],
+          [en("Chinese Nutrition Society")]
+        ]
+      },
+      {
+        title: "ПИТАНИЕ И ПИТЬЕ",
+        sub: "Разнообразное питание, питье по жажде",
+        bullets: [
+          "Овощи, белок, крупы, полезные жиры.",
+          "Строгие диеты истощают мать, не улучшают молоко.",
+          "Стакан воды рядом во время кормления.",
+          "Насильное питье литрами ≠ больше молока."
+        ],
+        sources: [
+          [en("National Health Commission of the PRC")],
+          [en("EFSA"), gr(" • "), ru("Союз педиатров России")]
+        ]
+      },
+      {
+        title: "ПОКОЙ И КОНТАКТ",
+        sub: "Покой и контакт кожа к коже",
+        bullets: [
+          "Стресс блокирует окситоцин — выброс молока.",
+          "Делегируй дела: отдых и кормление важнее.",
+          "Кожа к коже стабилизирует малыша.",
+          "Контакт усиливает гормональный отклик мамы."
+        ],
+        sources: [
+          [en("ABM"), gr(" • "), ru("ЮНИСЕФ")],
+          [en("Baby-Friendly Hospital Initiative")]
+        ]
+      },
+      {
+        title: "НЕ СЦЕЖИВАЙ БЕЗ НУЖДЫ",
+        sub: "Не сцеживай «до дна» без нужды",
+        bullets: [
+          "Полное сцеживание после кормления = ложный спрос.",
+          "Риск: гиперлактация, лактостаз, мастит.",
+          "Сцеживай до облегчения при распирании.",
+          "Или при временном разлучении с малышом."
+        ],
+        sources: [
+          [en("ABM Protocol #20"), gr(" • "), ru("АКЕВ")]
+        ]
+      },
+      {
+        title: "ОБРАЩАЙСЯ ЗА ПОМОЩЬЮ",
+        sub: "ГВ не должно быть подвигом через боль",
+        bullets: [
+          "Стойкая боль или трещины сосков.",
+          "Уплотнение, покраснение, температура.",
+          "Меньше 6–8 мокрых подгузников в сутки.",
+          "Обратись к консультанту или врачу срочно."
+        ],
+        sources: [
+          [en("ESPGHAN"), gr(" • "), ru("Минздрав РФ"), gr(" • "), en("AAP")]
+        ]
+      }
+    ];
+
+    function setFont(weight, size) {
+      ctx.font = `${weight} ${size}px ${FONT}`;
+    }
+
+    function roundRect(x, y, w, h, r) {
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.arcTo(x + w, y, x + w, y + h, r);
+      ctx.arcTo(x + w, y + h, x, y + h, r);
+      ctx.arcTo(x, y + h, x, y, r);
+      ctx.arcTo(x, y, x + w, y, r);
+      ctx.closePath();
+    }
+
+    function wrap(text, maxWidth) {
+      const words = text.split(" ");
+      const lines = [];
+      let line = "";
+
+      for (const word of words) {
+        const test = line ? `${line} ${word}` : word;
+        if (ctx.measureText(test).width <= maxWidth) {
+          line = test;
+        } else {
+          if (line) lines.push(line);
+          line = word;
+        }
+      }
+
+      if (line) lines.push(line);
+      return lines;
+    }
+
+    function drawBackground() {
+      ctx.fillStyle = C.bg;
+      ctx.fillRect(0, 0, W, H);
+
+      ctx.globalAlpha = 0.42;
+
+      ctx.fillStyle = "#F3E8DB";
+      ctx.beginPath();
+      ctx.arc(950, 110, 170, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = "#E9F2F0";
+      ctx.beginPath();
+      ctx.arc(110, 210, 120, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.globalAlpha = 1;
+    }
+
+    function drawDots() {
+      const total = 9;
+      const gap = 26;
+      const startX = W / 2 - ((total - 1) * gap) / 2;
+      const y = H - 42;
+
+      for (let i = 0; i < total; i++) {
+        const active = currentSlide === i + 1;
+        ctx.beginPath();
+        ctx.arc(startX + i * gap, y, active ? 9 : 7, 0, Math.PI * 2);
+        ctx.fillStyle = active ? C.accent : "#D8D2C8";
+        ctx.fill();
+      }
+    }
+
+    function drawCover() {
+      drawBackground();
+
+      ctx.textAlign = "center";
+
+      setFont(900, 76);
+      ctx.fillStyle = C.ru;
+      ctx.fillText("8 ЗАПОВЕДЕЙ", 540, 255);
+
+      setFont(900, 58);
+      ctx.fillStyle = C.ru;
+      ctx.fillText("ГРУДНОГО ВСКАРМЛИВАНИЯ", 540, 330);
+
+      setFont(600, 31);
+      ctx.fillStyle = C.gray;
+      ctx.fillText("Сохраните себе и покажите педиатру или консультанту", 540, 395);
+
+      roundRect(90, 470, 900, 455, 36);
+      ctx.fillStyle = C.soft;
+      ctx.fill();
+      ctx.strokeStyle = C.accent;
+      ctx.lineWidth = 3;
+      ctx.stroke();
+
+      setFont(900, 40);
+      ctx.fillStyle = C.ru;
+      ctx.fillText("ГЛАВНЫЙ СЕКРЕТ УСПЕХА", 540, 540);
+
+      const formula = [
+        { t: "Частое эффективное удаление молока", w: 800, c: C.ru },
+        { t: "+ твое спокойствие", w: 700, c: C.ru },
+        { t: "+ поддержка профессионалов", w: 700, c: C.ru },
+        { t: "= стабильная лактация и здоровье", w: 900, c: C.en }
+      ];
+
+      let y = 615;
+      for (const f of formula) {
+        setFont(f.w, 34);
+        ctx.fillStyle = f.c;
+        ctx.fillText(f.t, 540, y);
+        y += 58;
+      }
+
+      setFont(600, 30);
+      ctx.fillStyle = C.gray;
+      ctx.fillText("Листай → 8 правил", 540, 1010);
+
+      setFont(500, 24);
+      const disclaimer = "Информация не заменяет очный осмотр при боли, температуре или плохой прибавке веса";
+      const lines = wrap(disclaimer, 880);
+      let dy = 1060;
+      ctx.fillStyle = C.gray;
+      for (const line of lines) {
+        ctx.fillText(line, 540, dy);
+        dy += 32;
+      }
+
+      drawDots();
+      ctx.textAlign = "left";
+    }
+
+    function drawCommandment(num, slide) {
+      drawBackground();
+
+      const bx = 112;
+      const by = 112;
+      const br = 48;
+
+      ctx.beginPath();
+      ctx.arc(bx, by, br, 0, Math.PI * 2);
+      ctx.fillStyle = badgeColors[num - 1];
+      ctx.fill();
+
+      setFont(900, 44);
+      ctx.fillStyle = "#ffffff";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(String(num), bx, by + 1);
+      ctx.textAlign = "left";
+      ctx.textBaseline = "alphabetic";
+
+      setFont(800, 26);
+      ctx.fillStyle = C.gray;
+      ctx.fillText("ЗАПОВЕДЬ", 176, 104);
+
+      setFont(900, 48);
+      const titleLines = wrap(slide.title, 880);
+      let y = 190;
+      ctx.fillStyle = C.ru;
+      for (const line of titleLines) {
+        ctx.fillText(line, 80, y);
+        y += 56;
+      }
+
+      y += 4;
+      setFont(700, 34);
+      const subLines = wrap(slide.sub, 880);
+      ctx.fillStyle = C.ru;
+      for (const line of subLines) {
+        ctx.fillText(line, 80, y);
+        y += 46;
+      }
+
+      y += 22;
+      setFont(500, 31);
+
+      for (const bullet of slide.bullets) {
+        const lines = wrap(bullet, 850);
+
+        ctx.beginPath();
+        ctx.arc(96, y - 10, 6, 0, Math.PI * 2);
+        ctx.fillStyle = C.en;
+        ctx.fill();
+
+        ctx.fillStyle = C.ru;
+        for (const line of lines) {
+          ctx.fillText(line, 126, y);
+          y += 44;
+        }
+
+        y += 10;
+      }
+
+      const sourceLines = slide.sources;
+      setFont(500, 22);
+      const cardH = 88 + sourceLines.length * 34;
+      let cardY = Math.max(y + 24, 875);
+      if (cardY + cardH > H - 105) {
+        cardY = H - 105 - cardH;
+      }
+
+      roundRect(70, cardY, 940, cardH, 28);
+      ctx.fillStyle = "#ffffff";
+      ctx.fill();
+      ctx.strokeStyle = C.border;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      setFont(800, 24);
+      ctx.fillStyle = C.ru;
+      ctx.fillText("Источники:", 100, cardY + 42);
+
+      let sy = cardY + 78;
+      setFont(500, 22);
+
+      for (const line of sourceLines) {
+        let sx = 100;
+        for (const seg of line) {
+          ctx.fillStyle = seg.type === "ru" ? C.ru : seg.type === "en" ? C.en : C.gray;
+          ctx.fillText(seg.t, sx, sy);
+          sx += ctx.measureText(seg.t).width;
+        }
+        sy += 34;
+      }
+
+      setFont(500, 22);
+      ctx.fillStyle = C.gray;
+      ctx.fillText(`Слайд ${currentSlide} / 9`, 80, H - 58);
+
+      drawDots();
+    }
+
+    function drawSlide(n) {
+      currentSlide = Math.min(9, Math.max(1, n));
+      indicatorEl.textContent = `Слайд ${currentSlide} / 9`;
+
+      if (currentSlide === 1) {
+        drawCover();
+      } else {
+        drawCommandment(currentSlide - 1, commandments[currentSlide - 2]);
+      }
+    }
+
+    function downloadCurrent() {
+      canvas.toBlob((blob) => {
+        if (!blob) return;
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = fileNames[currentSlide - 1];
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 2000);
+        statusEl.textContent = "Текущий PNG скачан.";
+      }, "image/png");
+    }
+
+    const crcTable = (() => {
+      const table = new Uint32Array(256);
+      for (let n = 0; n < 256; n++) {
+        let c = n;
+        for (let k = 0; k < 8; k++) {
+          c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+        }
+        table[n] = c >>> 0;
+      }
+      return table;
+    })();
+
+    function crc32(buf) {
+      let crc = 0xFFFFFFFF;
+      for (let i = 0; i < buf.length; i++) {
+        crc = (crc >>> 8) ^ crcTable[(crc ^ buf[i]) & 0xFF];
+      }
+      return (crc ^ 0xFFFFFFFF) >>> 0;
+    }
+
+    function makeZip(files) {
+      const encoder = new TextEncoder();
+      const locals = [];
+      const centrals = [];
+      let offset = 0;
+
+      for (const file of files) {
+        const nameBytes = encoder.encode(file.name);
+        const crc = crc32(file.data);
+        const size = file.data.length;
+
+        const local = new Uint8Array(30 + nameBytes.length + size);
+        const ldv = new DataView(local.buffer);
+
+        ldv.setUint32(0, 0x04034b50, true);
+        ldv.setUint16(4, 20, true);
+        ldv.setUint16(6, 0, true);
+        ldv.setUint16(8, 0, true);
+        ldv.setUint16(10, 0, true);
+        ldv.setUint16(12, 0, true);
+        ldv.setUint32(14, crc, true);
+        ldv.setUint32(18, size, true);
+        ldv.setUint32(22, size, true);
+        ldv.setUint16(26, nameBytes.length, true);
+        ldv.setUint16(28, 0, true);
+
+        local.set(nameBytes, 30);
+        local.set(file.data, 30 + nameBytes.length);
+        locals.push(local);
+
+        const central = new Uint8Array(46 + nameBytes.length);
+        const cdv = new DataView(central.buffer);
+
+        cdv.setUint32(0, 0x02014b50, true);
+        cdv.setUint16(4, 20, true);
+        cdv.setUint16(6, 20, true);
+        cdv.setUint16(8, 0, true);
+        cdv.setUint16(10, 0, true);
+        cdv.setUint16(12, 0, true);
+        cdv.setUint16(14, 0, true);
+        cdv.setUint32(16, crc, true);
+        cdv.setUint32(20, size, true);
+        cdv.setUint32(24, size, true);
+        cdv.setUint16(28, nameBytes.length, true);
+        cdv.setUint16(30, 0, true);
+        cdv.setUint16(32, 0, true);
+        cdv.setUint16(34, 0, true);
+        cdv.setUint16(36, 0, true);
+        cdv.setUint32(38, 0, true);
+        cdv.setUint32(42, offset, true);
+
+        central.set(nameBytes, 46);
+        centrals.push(central);
+
+        offset += local.length;
+      }
+
+      const centralSize = centrals.reduce((sum, arr) => sum + arr.length, 0);
+
+      const end = new Uint8Array(22);
+      const edv = new DataView(end.buffer);
+
+      edv.setUint32(0, 0x06054b50, true);
+      edv.setUint16(4, 0, true);
+      edv.setUint16(6, 0, true);
+      edv.setUint16(8, files.length, true);
+      edv.setUint16(10, files.length, true);
+      edv.setUint32(12, centralSize, true);
+      edv.setUint32(16, offset, true);
+      edv.setUint16(20, 0, true);
+
+      return new Blob([...locals, ...centrals, end], { type: "application/zip" });
+    }
+
+    async function getCanvasBlob() {
+      return new Promise((resolve) => {
+        canvas.toBlob(resolve, "image/png");
+      });
+    }
+
+    async function downloadZip() {
+      const savedSlide = currentSlide;
+      statusEl.textContent = "Генерирую 9 PNG и собираю ZIP...";
+
+      await new Promise((r) => setTimeout(r, 50));
+
+      const files = [];
+
+      for (let i = 1; i <= 9; i++) {
+        drawSlide(i);
+        const blob = await getCanvasBlob();
+        const buf = new Uint8Array(await blob.arrayBuffer());
+        files.push({ name: fileNames[i - 1], data: buf });
+        statusEl.textContent = `Готово ${i}/9...`;
+        await new Promise((r) => setTimeout(r, 10));
+      }
+
+      const zip = makeZip(files);
+      const url = URL.createObjectURL(zip);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "gv-carousel-9-slides-1080x1350.zip";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+
+      setTimeout(() => URL.revokeObjectURL(url), 2000);
+
+      drawSlide(savedSlide);
+      statusEl.textContent = "ZIP с 9 PNG готов.";
+    }
+
+    document.getElementById("prev").addEventListener("click", () => drawSlide(currentSlide - 1));
+    document.getElementById("next").addEventListener("click", () => drawSlide(currentSlide + 1));
+    document.getElementById("downloadOne").addEventListener("click", downloadCurrent);
+    document.getElementById("downloadZip").addEventListener("click", downloadZip);
+
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowRight") drawSlide(currentSlide + 1);
+      if (e.key === "ArrowLeft") drawSlide(currentSlide - 1);
+    });
+
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(() => drawSlide(1)).catch(() => drawSlide(1));
+    } else {
+      window.addEventListener("load", () => drawSlide(1));
+    }
+  </script>
+</body>
+</html>
